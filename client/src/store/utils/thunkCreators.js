@@ -123,3 +123,12 @@ export const searchUsers = (searchTerm) => async (dispatch) => {
     console.error(error);
   }
 };
+
+export const updateMessageStatus = (body) => async (dispatch) => {
+  try {
+    const { data } = await axios.put("/api/messages/status", body);
+    return data;
+  } catch (error) {
+    console.error(error)
+  }
+}
