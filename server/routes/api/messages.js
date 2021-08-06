@@ -51,6 +51,15 @@ router.put("/status", async (req, res, next) => {
     const senderId = req.user.id;
     const { conversationId, otherUserId } = req.body;
 
+    const conversation = await Conversation.findConversation(
+      senderId,
+      otherUserId
+    );
+    
+    if (conversation.id !== conversationId) {
+      return res.status(401).json({ error: "Not authorizated" });
+    }
+
     await Message.update(
       { read: true },
       { where: { conversationId, senderId: otherUserId, read: false } }
@@ -60,7 +69,10 @@ router.put("/status", async (req, res, next) => {
       where: { conversationId },
     });
 
-    const lastReadMessage = await Message.getLastReadMessage(conversationId, senderId);
+    const lastReadMessage = await Message.getLastReadMessage(
+      conversationId,
+      senderId
+    );
 
     return res.status(200).json({ messages, conversationId, lastReadMessage });
   } catch (error) {

@@ -13,10 +13,7 @@ const ChatStatusBadge = ({ unreadMessageCount }) => {
 
   return (
     <Box className={classes.root}>
-      <Badge
-        badgeContent={unreadMessageCount}
-        color="primary"
-      ></Badge>
+      <Badge badgeContent={unreadMessageCount} color="primary" />
     </Box>
   );
 };
