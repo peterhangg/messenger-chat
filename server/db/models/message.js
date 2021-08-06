@@ -35,4 +35,25 @@ Message.getUnreadMessageCount = async function (conversationId, userId) {
   return unreadMessageCount;
 };
 
+// Get last read message via conversation
+Message.getLastReadMessage = async function (conversationId, userId) {
+  const lastReadMessage = await Message.findAll({
+    where: {
+      conversationId: {
+        [Op.eq]: conversationId,
+      },
+      senderId: {
+        [Op.eq]: userId,
+      },
+      read: {
+        [Op.eq]: true,
+      },
+    },
+    limit: 1,
+    order: [["createdAt", "DESC"]],
+  });
+
+  return lastReadMessage?.[0];
+};
+
 module.exports = Message;

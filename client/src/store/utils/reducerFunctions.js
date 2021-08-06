@@ -84,13 +84,15 @@ export const addNewConvoToStore = (state, recipientId, message) => {
 export const updateReadMessageStatusInStore = (
   state,
   conversationId,
-  messages
+  messages,
+  lastReadMessage 
 ) => {
   return state.map((convo) => {
     if (convo.id === conversationId) {
       const convoCopy = { ...convo };
       convoCopy.unreadMessageCount = 0;
       convoCopy.messages = messages;
+      convoCopy.lastReadMessage = lastReadMessage;
       return convoCopy;
     } else {
       return convo;

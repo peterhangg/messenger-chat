@@ -48,6 +48,7 @@ router.put("/status", async (req, res, next) => {
     if (!req.user) {
       return res.sendStatus(401);
     }
+    const senderId = req.user.id;
     const { conversationId, otherUserId } = req.body;
 
     await Message.update(
@@ -59,7 +60,9 @@ router.put("/status", async (req, res, next) => {
       where: { conversationId },
     });
 
-    return res.status(200).json({ messages, conversationId });
+    const lastReadMessage = await Message.getLastReadMessage(conversationId, senderId);
+
+    return res.status(200).json({ messages, conversationId, lastReadMessage });
   } catch (error) {
     next(error);
   }

@@ -128,7 +128,7 @@ export const searchUsers = (searchTerm) => async (dispatch) => {
 export const updateMessageStatus = (body) => async (dispatch) => {
   try {
     const { data } = await axios.put("/api/messages/status", body);
-    dispatch(updateMessageStatusAsRead(data.conversationId, data.messages));
+    dispatch(updateMessageStatusAsRead(data.conversationId, data.messages, data.lastReadMessage));
     return data;
   } catch (error) {
     console.error(error)

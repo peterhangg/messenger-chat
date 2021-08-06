@@ -69,10 +69,10 @@ export const addConversation = (recipientId, newMessage) => {
   };
 };
 
-export const updateMessageStatusAsRead = (conversationId, messages) => {
+export const updateMessageStatusAsRead = (conversationId, messages, lastReadMessage) => {
   return {
     type: UPDATE_MESSAGE_STATUS,
-    payload: { conversationId, messages },
+    payload: { conversationId, messages, lastReadMessage },
   };
 };
 
@@ -104,7 +104,8 @@ const reducer = (state = [], action) => {
       return updateReadMessageStatusInStore(
         state,
         action.payload.conversationId,
-        action.payload.messages
+        action.payload.messages,
+        action.payload.lastReadMessage
       );
     default:
       return state;
