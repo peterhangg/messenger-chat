@@ -1,11 +1,14 @@
 import React from "react";
 import { Box, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
+import ChatStatusBadge from "./ChatStatusBadge";
+import PreviewMessage from "./PreviewMessage";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   root: {
     display: "flex",
     justifyContent: "space-between",
+    alignItems: "center",
     marginLeft: 20,
     flexGrow: 1,
   },
@@ -13,18 +16,12 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: "bold",
     letterSpacing: -0.2,
   },
-  previewText: {
-    fontSize: 12,
-    color: "#9CADC8",
-    letterSpacing: -0.17,
-  },
 }));
 
 const ChatContent = (props) => {
-  const classes = useStyles();
-
-  const { conversation } = props;
-  const { latestMessageText, otherUser } = conversation;
+  const classes = useStyles(props);
+  const { latestMessageText, otherUser, unreadMessageCount } =
+    props.conversation;
 
   return (
     <Box className={classes.root}>
@@ -32,10 +29,13 @@ const ChatContent = (props) => {
         <Typography className={classes.username}>
           {otherUser.username}
         </Typography>
-        <Typography className={classes.previewText}>
+        <PreviewMessage unread={(unreadMessageCount > 0).toString()}>
           {latestMessageText}
-        </Typography>
+        </PreviewMessage>
       </Box>
+      {unreadMessageCount > 0 && (
+        <ChatStatusBadge unreadMessageCount={unreadMessageCount} />
+      )}
     </Box>
   );
 };
