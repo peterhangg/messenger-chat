@@ -57,7 +57,7 @@ router.put("/status", async (req, res, next) => {
     );
     
     if (conversation.id !== conversationId) {
-      return res.status(401).json({ error: "Not authorizated" });
+      return res.status(403).json({ error: "Not authorized" });
     }
 
     await Message.update(

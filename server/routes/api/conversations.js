@@ -72,7 +72,7 @@ router.get("/", async (req, res, next) => {
       convoJSON.latestMessageText = convoJSON.messages[0].text;
       
       // set properties for number of unread messages via conversation on load
-      convoJSON.unreadMessageCount = await Message.getUnreadMessageCount(convo.id, userId);
+      convoJSON.unreadMessageCount = await Conversation.getUnreadMessageCount(convo.id, userId);
 
       // set properties of user's last read message via conversation on load
       convoJSON.lastReadMessage = await Message.getLastReadMessage(convo.id, userId);

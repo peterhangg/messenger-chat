@@ -17,24 +17,6 @@ const Message = db.define("message", {
   },
 });
 
-// return the unread message count via conversation
-Message.getUnreadMessageCount = async function (conversationId, userId) {
-  const unreadMessageCount = await Message.count({
-    where: {
-      conversationId: {
-        [Op.eq]: conversationId,
-      },
-      senderId: {
-        [Op.ne]: userId,
-      },
-      read: {
-        [Op.eq]: false,
-      },
-    },
-  });
-  return unreadMessageCount;
-};
-
 // Get last read message via conversation
 Message.getLastReadMessage = async function (conversationId, userId) {
   const lastReadMessage = await Message.findAll({
