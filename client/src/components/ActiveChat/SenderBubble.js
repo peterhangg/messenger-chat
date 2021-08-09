@@ -32,7 +32,7 @@ const useStyles = makeStyles(() => ({
 const SenderBubble = ({time, text, otherUser, messageId, conversation }) => {
   const classes = useStyles();
   const lastReadMessageId = conversation?.lastReadMessage?.id;
-
+  
   return (
     <Box className={classes.root}>
       <Typography className={classes.date}>{time}</Typography>

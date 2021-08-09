@@ -27,7 +27,10 @@ class Chat extends Component {
       otherUserId: conversation.otherUser.id
     };
     await this.props.setActiveChat(conversation.otherUser.username);
-    await this.props.updateMessageStatus(reqBody);
+    // Update message status only if conversation between the 2 users already exist
+    if (conversation.messages?.length > 0) {
+      await this.props.updateMessageStatus(reqBody);
+    }
   };
 
   render() {
