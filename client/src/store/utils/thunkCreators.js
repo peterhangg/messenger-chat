@@ -5,7 +5,7 @@ import {
   addConversation,
   setNewMessage,
   setSearchedUsers,
-  updateMessageStatusAsRead
+  updateMessageStatusAsRead,
 } from "../conversations";
 import { gotUser, setFetchingStatus } from "../user";
 
@@ -76,7 +76,9 @@ export const fetchConversations = () => async (dispatch) => {
 
     // Sort messages by date
     data.forEach((convo) => {
-      convo.messages.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+      convo.messages.sort(
+        (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+      );
     });
 
     dispatch(gotConversations(data));
@@ -125,12 +127,31 @@ export const searchUsers = (searchTerm) => async (dispatch) => {
   }
 };
 
+const emitReadMessages = (data) => {
+  socket.emit("read-messages", {
+    conversationId: data.conversationId,
+    messages: data.messages,
+    lastReadMessage: data.lastReadMessage,
+    userId: data.userId,
+  });
+};
+
 export const updateMessageStatus = (body) => async (dispatch) => {
   try {
     const { data } = await axios.put("/api/messages/status", body);
-    dispatch(updateMessageStatusAsRead(data.conversationId, data.messages, data.lastReadMessage));
+    dispatch(
+      updateMessageStatusAsRead(
+        data.conversationId,
+        data.messages,
+        data.lastReadMessage,
+        data.userId
+      )
+    );
+
+    emitReadMessages(data);
+
     return data;
   } catch (error) {
-    console.error(error)
+    console.error(error);
   }
-}
+};

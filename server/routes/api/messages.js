@@ -74,7 +74,7 @@ router.put("/status", async (req, res, next) => {
       senderId
     );
 
-    return res.status(200).json({ messages, conversationId, lastReadMessage });
+    return res.status(200).json({ messages, conversationId, lastReadMessage, userId: senderId });
   } catch (error) {
     next(error);
   }
