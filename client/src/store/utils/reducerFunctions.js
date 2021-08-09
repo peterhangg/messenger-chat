@@ -91,14 +91,24 @@ export const updateReadMessageStatusInStore = (
   state,
   conversationId,
   messages,
-  lastReadMessage
+  lastReadMessage,
+  userId
 ) => {
   return state.map((convo) => {
     if (convo.id === conversationId) {
       const convoCopy = { ...convo };
-      convoCopy.unreadMessageCount = 0;
       convoCopy.messages = messages;
-      convoCopy.lastReadMessage = lastReadMessage;
+      if (userId !== convo.otherUser.id) {
+        convoCopy.unreadMessageCount = 0;
+        convoCopy.lastReadMessage = lastReadMessage;
+      } else {
+        const userReadMessages = convoCopy.messages.filter(
+          (message) => message.senderId !== userId && message.read
+        );
+        const userLastReadMessage =
+          userReadMessages[userReadMessages.length - 1];
+        convoCopy.lastReadMessage = userLastReadMessage;
+      }
       return convoCopy;
     } else {
       return convo;
