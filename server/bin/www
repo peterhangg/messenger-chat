@@ -30,7 +30,11 @@ const server = http.createServer(app);
  * Listen on provided port, on all network interfaces, and sync database.
  */
 
-const io = require("socket.io")(server);
+const io = require("socket.io")(server, {
+  cors: {
+    origin: process.env.CLIENT_URL || "http://localhost:3000",
+  },
+});
 
 io.use((socket, next) => {
   const token = socket.handshake.auth.token;
@@ -52,27 +56,32 @@ io.on("connection", (socket) => {
     const userId = socket.decoded.id;
     if (userId !== id) throw new Error("Not authenticated");
 
-    if (!onlineUsers[userId]) {
-      onlineUsers[userId] = socket.id;
-    }
+    !onlineUsers[id]
+      ? (onlineUsers[id] = [socket.id])
+      : onlineUsers[id].push(socket.id);
+
     // send the user who just went online to everyone else who is already online
     socket.broadcast.emit("add-online-user", id);
   });
 
   socket.on("new-message", (data) => {
-    io.to(onlineUsers[data.recipientId]).emit("new-message", {
-      message: data.message,
-      sender: data.sender,
+    onlineUsers[data.recipientId].forEach((user) => {
+      io.to(user).emit("new-message", {
+        message: data.message,
+        sender: data.sender,
+      });
     });
   });
 
   socket.on("read-messages", (data) => {
-    io.to(onlineUsers[data.otherUserId]).emit("read-messages", {
-      conversationId: data.conversationId,
-      messages: data.messages,
-      lastReadMessage: data.lastReadMessage,
-      userId: data.userId,
-      otherUserId: data.otherUserId,
+    onlineUsers[data.otherUserId].forEach((user) => {
+      io.to(user).emit("read-messages", {
+        conversationId: data.conversationId,
+        messages: data.messages,
+        lastReadMessage: data.lastReadMessage,
+        userId: data.userId,
+        otherUserId: data.otherUserId,
+      });
     });
   });
 
@@ -83,6 +92,7 @@ io.on("connection", (socket) => {
     if (onlineUsers[id]) {
       delete onlineUsers[id];
       socket.broadcast.emit("remove-offline-user", id);
+      socket.disconnect();
     }
   });
 });
