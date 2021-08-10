@@ -7,12 +7,12 @@ import {
   updateMessageStatusAsRead,
 } from "./store/conversations";
 
+const token = localStorage.getItem("messenger-token");
 const socket = io(window.location.origin, {
-  auth: { token: localStorage.getItem("messenger-token") },
+  auth: { token },
 });
 
 socket.on("connect", () => {
-  console.log("CONNECTING TO SOCKET SERVER");
   socket.on("add-online-user", (id) => {
     store.dispatch(addOnlineUser(id));
   });

@@ -133,6 +133,7 @@ const emitReadMessages = (data) => {
     messages: data.messages,
     lastReadMessage: data.lastReadMessage,
     userId: data.userId,
+    otherUserId: data.otherUserId
   });
 };
 
@@ -144,7 +145,8 @@ export const updateMessageStatus = (body) => async (dispatch) => {
         data.conversationId,
         data.messages,
         data.lastReadMessage,
-        data.userId
+        data.userId,
+        data.otherUserId
       )
     );
 

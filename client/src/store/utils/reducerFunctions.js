@@ -92,7 +92,7 @@ export const updateReadMessageStatusInStore = (
   conversationId,
   messages,
   lastReadMessage,
-  userId
+  userId,
 ) => {
   return state.map((convo) => {
     if (convo.id === conversationId) {
