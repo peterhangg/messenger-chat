@@ -7,8 +7,7 @@ import {
   updateMessageStatusAsRead,
 } from "./store/conversations";
 
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
-const socket = io(API_URL, { autoConnect: false });
+const socket = io(window.location.origin, { autoConnect: false });
 
 socket.on("connect", () => {
   socket.on("add-online-user", (id) => {
@@ -30,9 +29,6 @@ socket.on("connect", () => {
         data.userId
       )
     );
-  });
-  socket.onAny((event, ...args) => {
-    console.log(event, args);
   });
 });
 

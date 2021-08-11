@@ -12,6 +12,7 @@ const http = require("http");
 const db = require("../db");
 const onlineUsers = require("../onlineUsers");
 const jwt = require("jsonwebtoken");
+const { Conversation } = require("../db/models");
 
 /**
  * Get port from environment and store in Express.
@@ -30,11 +31,7 @@ const server = http.createServer(app);
  * Listen on provided port, on all network interfaces, and sync database.
  */
 
-const io = require("socket.io")(server, {
-  cors: {
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
-  },
-});
+const io = require("socket.io")(server);
 
 io.use((socket, next) => {
   const token = socket.handshake.auth.token;
@@ -66,6 +63,7 @@ io.on("connection", (socket) => {
 
   socket.on("new-message", (data) => {
     const onlineRecipientUser = onlineUsers[data.recipientId];
+
     if (onlineRecipientUser?.length > 0) {
       onlineRecipientUser.forEach((user) => {
         io.to(user).emit("new-message", {
@@ -81,8 +79,12 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("read-messages", (data) => {
-    const onlineRecipientUser = onlineUsers[data.otherUserId];
+  socket.on("read-messages", async (data) => {
+    const conversation = await Conversation.findByPk(data.conversationId);
+    const { user1Id, user2Id } = conversation.toJSON();
+    const RecipientUserId = data.userId === user1Id ? user2Id : user1Id;
+    const onlineRecipientUser = onlineUsers[RecipientUserId];
+
     if (onlineRecipientUser?.length > 0) {
       onlineRecipientUser.forEach((user) => {
         io.to(user).emit("read-messages", {
@@ -90,7 +92,6 @@ io.on("connection", (socket) => {
           messages: data.messages,
           lastReadMessage: data.lastReadMessage,
           userId: data.userId,
-          otherUserId: data.otherUserId,
         });
       });
     } else {
@@ -99,15 +100,11 @@ io.on("connection", (socket) => {
         messages: data.messages,
         lastReadMessage: data.lastReadMessage,
         userId: data.userId,
-        otherUserId: data.otherUserId,
       });
     }
   });
 
   socket.on("logout", (id) => {
-    const userId = socket.decoded.id;
-    if (userId !== id) throw new Error("Not authenticated");
-
     if (onlineUsers[id]) {
       delete onlineUsers[id];
       socket.broadcast.emit("remove-offline-user", id);

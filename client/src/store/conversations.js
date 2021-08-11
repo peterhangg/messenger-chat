@@ -73,12 +73,11 @@ export const updateMessageStatusAsRead = (
   conversationId,
   messages,
   lastReadMessage,
-  userId,
-  otherUserId
+  userId
 ) => {
   return {
     type: UPDATE_MESSAGE_STATUS,
-    payload: { conversationId, messages, lastReadMessage, userId, otherUserId },
+    payload: { conversationId, messages, lastReadMessage, userId },
   };
 };
 
@@ -112,8 +111,7 @@ const reducer = (state = [], action) => {
         action.payload.conversationId,
         action.payload.messages,
         action.payload.lastReadMessage,
-        action.payload.userId,
-        action.payload.otherUserId
+        action.payload.userId
       );
     default:
       return state;
