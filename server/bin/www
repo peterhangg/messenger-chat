@@ -11,6 +11,8 @@ const { app, sessionStore } = require("../app");
 const http = require("http");
 const db = require("../db");
 const onlineUsers = require("../onlineUsers");
+const jwt = require("jsonwebtoken");
+const { Conversation } = require("../db/models");
 
 /**
  * Get port from environment and store in Express.
@@ -31,36 +33,82 @@ const server = http.createServer(app);
 
 const io = require("socket.io")(server);
 
+io.use((socket, next) => {
+  const token = socket.handshake.auth.token;
+  if (token) {
+    jwt.verify(token, process.env.SESSION_SECRET, (err, decoded) => {
+      if (err) {
+        return next(new Error("Invalid token"));
+      }
+      socket.decoded = decoded;
+      next();
+    });
+  } else {
+    return next(new Error("No token provided"));
+  }
+});
+
 io.on("connection", (socket) => {
   socket.on("go-online", (id) => {
-    if (!onlineUsers.includes(id)) {
-      onlineUsers.push(id);
-    }
+    const userId = socket.decoded.id;
+    if (userId !== id) throw new Error("Not authenticated");
+
+    !onlineUsers[userId]
+      ? (onlineUsers[userId] = [socket.id])
+      : onlineUsers[userId].push(socket.id);
+
     // send the user who just went online to everyone else who is already online
     socket.broadcast.emit("add-online-user", id);
   });
 
   socket.on("new-message", (data) => {
-    socket.broadcast.emit("new-message", {
-      message: data.message,
-      sender: data.sender,
-    });
+    const onlineRecipientUser = onlineUsers[data.recipientId];
+
+    if (onlineRecipientUser?.length > 0) {
+      onlineRecipientUser.forEach((user) => {
+        io.to(user).emit("new-message", {
+          message: data.message,
+          sender: data.sender,
+        });
+      });
+    } else {
+      socket.to(data.recipientId).emit("new-message", {
+        message: data.message,
+        sender: data.sender,
+      });
+    }
   });
 
-  socket.on("read-messages", (data) => {
-    socket.broadcast.emit("read-messages", {
-      conversationId: data.conversationId,
-      messages: data.messages,
-      lastReadMessage: data.lastReadMessage,
-      userId: data.userId
-    });
-  })
+  socket.on("read-messages", async (data) => {
+    const conversation = await Conversation.findByPk(data.conversationId);
+    const { user1Id, user2Id } = conversation.toJSON();
+    const RecipientUserId = data.userId === user1Id ? user2Id : user1Id;
+    const onlineRecipientUser = onlineUsers[RecipientUserId];
+
+    if (onlineRecipientUser?.length > 0) {
+      onlineRecipientUser.forEach((user) => {
+        io.to(user).emit("read-messages", {
+          conversationId: data.conversationId,
+          messages: data.messages,
+          lastReadMessage: data.lastReadMessage,
+          userId: data.userId,
+        });
+      });
+    } else {
+      socket.to(data.otherUserId).emit("read-messages", {
+        conversationId: data.conversationId,
+        messages: data.messages,
+        lastReadMessage: data.lastReadMessage,
+        userId: data.userId,
+      });
+    }
+  });
 
   socket.on("logout", (id) => {
-    if (onlineUsers.includes(id)) {
-      userIndex = onlineUsers.indexOf(id);
-      onlineUsers.splice(userIndex, 1);
+    if (onlineUsers[id]) {
+      delete onlineUsers[id];
       socket.broadcast.emit("remove-offline-user", id);
+      socket.disconnect();
     }
   });
 });

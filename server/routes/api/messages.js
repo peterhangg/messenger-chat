@@ -28,7 +28,7 @@ router.post("/", async (req, res, next) => {
         user1Id: senderId,
         user2Id: recipientId,
       });
-      if (onlineUsers.includes(sender.id)) {
+      if (onlineUsers[sender.id]) {
         sender.online = true;
       }
     }
@@ -55,7 +55,7 @@ router.put("/status", async (req, res, next) => {
       senderId,
       otherUserId
     );
-    
+
     if (conversation.id !== conversationId) {
       return res.status(403).json({ error: "Not authorized" });
     }
@@ -74,7 +74,12 @@ router.put("/status", async (req, res, next) => {
       senderId
     );
 
-    return res.status(200).json({ messages, conversationId, lastReadMessage, userId: senderId });
+    return res.status(200).json({
+      messages,
+      conversationId,
+      lastReadMessage,
+      userId: senderId,
+    });
   } catch (error) {
     next(error);
   }

@@ -69,7 +69,12 @@ export const addConversation = (recipientId, newMessage) => {
   };
 };
 
-export const updateMessageStatusAsRead = (conversationId, messages, lastReadMessage, userId) => {
+export const updateMessageStatusAsRead = (
+  conversationId,
+  messages,
+  lastReadMessage,
+  userId
+) => {
   return {
     type: UPDATE_MESSAGE_STATUS,
     payload: { conversationId, messages, lastReadMessage, userId },

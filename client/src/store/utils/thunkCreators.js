@@ -22,7 +22,10 @@ export const fetchUser = () => async (dispatch) => {
   dispatch(setFetchingStatus(true));
   try {
     const { data } = await axios.get("/auth/user");
+    const token = localStorage.getItem("messenger-token");
     dispatch(gotUser(data));
+    socket.auth = { token };
+    socket.connect();
     if (data.id) {
       socket.emit("go-online", data.id);
     }
@@ -38,6 +41,8 @@ export const register = (credentials) => async (dispatch) => {
     const { data } = await axios.post("/auth/register", credentials);
     await localStorage.setItem("messenger-token", data.token);
     dispatch(gotUser(data));
+    socket.auth = { token: data.token };
+    socket.connect();
     socket.emit("go-online", data.id);
   } catch (error) {
     console.error(error);
@@ -50,6 +55,8 @@ export const login = (credentials) => async (dispatch) => {
     const { data } = await axios.post("/auth/login", credentials);
     await localStorage.setItem("messenger-token", data.token);
     dispatch(gotUser(data));
+    socket.auth = { token: data.token };
+    socket.connect();
     socket.emit("go-online", data.id);
   } catch (error) {
     console.error(error);

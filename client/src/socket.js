@@ -7,11 +7,9 @@ import {
   updateMessageStatusAsRead,
 } from "./store/conversations";
 
-const socket = io(window.location.origin);
+const socket = io(window.location.origin, { autoConnect: false });
 
 socket.on("connect", () => {
-  console.log("connected to server");
-
   socket.on("add-online-user", (id) => {
     store.dispatch(addOnlineUser(id));
   });
