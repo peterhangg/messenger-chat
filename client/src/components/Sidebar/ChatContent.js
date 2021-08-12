@@ -28,7 +28,7 @@ const ChatContent = ({ conversation }) => {
         <Typography className={classes.username}>
           {otherUser.username}
         </Typography>
-        <PreviewMessage unread={(unreadMessageCount > 0).toString()}>
+        <PreviewMessage unread={unreadMessageCount > 0 ? 1 : 0}>
           {latestMessageText}
         </PreviewMessage>
       </Box>

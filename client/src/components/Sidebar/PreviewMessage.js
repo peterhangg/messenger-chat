@@ -5,9 +5,9 @@ const useStyles = makeStyles((theme) => ({
   previewText: {
     fontSize: 12,
     color: (props) =>
-      props.unread === "true" ? theme.palette.black : theme.palette.rockBlue,
+      props.unread === 1 ? theme.palette.black : theme.palette.rockBlue,
     letterSpacing: -0.17,
-    fontWeight: (props) => (props.unread === "true" ? "bold" : ""),
+    fontWeight: (props) => (props.unread === 1 ? "bold" : ""),
   },
 }));
 
