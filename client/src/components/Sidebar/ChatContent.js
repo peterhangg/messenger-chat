@@ -18,10 +18,9 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-const ChatContent = (props) => {
-  const classes = useStyles(props);
-  const { latestMessageText, otherUser, unreadMessageCount } =
-    props.conversation;
+const ChatContent = ({ conversation }) => {
+  const classes = useStyles();
+  const { latestMessageText, otherUser, unreadMessageCount } = conversation;
 
   return (
     <Box className={classes.root}>
@@ -29,7 +28,7 @@ const ChatContent = (props) => {
         <Typography className={classes.username}>
           {otherUser.username}
         </Typography>
-        <PreviewMessage unread={(unreadMessageCount > 0).toString()}>
+        <PreviewMessage unread={unreadMessageCount > 0}>
           {latestMessageText}
         </PreviewMessage>
       </Box>

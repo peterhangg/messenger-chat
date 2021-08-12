@@ -20,6 +20,8 @@ export const theme = createTheme({
   palette: {
     primary: { main: "#3A8DFF" },
     secondary: { main: "#B0B0B0" },
+    black: "#000000",
+    rockBlue: "#9CADC8",
   },
   spacing: 5,
 });
