@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Redirect, useHistory } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
+import { connect } from "react-redux";
 import {
   Grid,
   Box,
@@ -12,10 +12,9 @@ import {
 } from "@material-ui/core";
 import { register } from "./store/utils/thunkCreators";
 
-const Login = () => {
+const Login = (props) => {
   const history = useHistory();
-  const dispatch = useDispatch();
-  const user = useSelector((state) => state.user);
+  const { user, register } = props;
   const [formErrorMessage, setFormErrorMessage] = useState({});
 
   const handleRegister = async (event) => {
@@ -30,7 +29,7 @@ const Login = () => {
       return;
     }
 
-    await dispatch(register({ username, email, password }));
+    await register({ username, email, password });
   };
 
   if (user.id) {
@@ -108,4 +107,18 @@ const Login = () => {
   );
 };
 
-export default Login;
+const mapStateToProps = (state) => {
+  return {
+    user: state.user,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    register: (credentials) => {
+      dispatch(register(credentials));
+    },
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Login);

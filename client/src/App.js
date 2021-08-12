@@ -7,7 +7,7 @@ import store from "./store";
 import { theme } from "./themes/theme";
 import Routes from "./routes";
 
-const App = () => {
+function App() {
   return (
     <Provider store={store}>
       <MuiThemeProvider theme={theme}>

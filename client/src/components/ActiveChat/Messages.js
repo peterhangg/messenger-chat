@@ -1,15 +1,9 @@
-import React, { useEffect, useRef } from "react";
-import moment from "moment";
+import React from "react";
 import { Box } from "@material-ui/core";
 import { SenderBubble, OtherUserBubble } from "../ActiveChat";
+import moment from "moment";
 
-const Messages = ({ messages, otherUser, userId }) => {
-  const messageBottomRef = useRef(null);
-
-  useEffect(() => {
-    messageBottomRef.current.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
+const Messages = ({ messages, otherUser, userId, lastMessageRead  }) => {
   return (
     <Box>
       {messages.map((message) => {
@@ -32,7 +26,6 @@ const Messages = ({ messages, otherUser, userId }) => {
           />
         );
       })}
-      <Box ref={messageBottomRef} />
     </Box>
   );
 };

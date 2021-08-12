@@ -1,11 +1,12 @@
-import React from "react";
-import { Box, makeStyles } from "@material-ui/core";
+import React, { Component } from "react";
+import { Box } from "@material-ui/core";
 import { BadgeAvatar, ChatContent } from "../Sidebar";
+import { withStyles } from "@material-ui/core/styles";
 import { setActiveChat } from "../../store/activeConversation";
 import { updateMessageStatus } from "../../store/utils/thunkCreators";
-import { useDispatch } from "react-redux";
+import { connect } from "react-redux";
 
-const useStyles = makeStyles(() => ({
+const styles = {
   root: {
     borderRadius: 8,
     height: 80,
@@ -14,40 +15,53 @@ const useStyles = makeStyles(() => ({
     display: "flex",
     alignItems: "center",
     "&:hover": {
-      cursor: "pointer",
-      boxShadow: "rgba(0, 0, 0, 0.35) 0px 5px 15px",
+      cursor: "grab",
     },
   },
-}));
+};
 
-const Chat = ({ conversation }) => {
-  const dispatch = useDispatch();
-  const otherUser = conversation.otherUser;
-  const classes = useStyles();
-
-  const handleClick = async (conversation) => {
+class Chat extends Component {
+  handleClick = async (conversation) => {
     const reqBody = {
       conversationId: conversation.id,
-      otherUserId: conversation.otherUser.id,
+      otherUserId: conversation.otherUser.id
     };
-    await dispatch(setActiveChat(conversation.otherUser.username));
+    await this.props.setActiveChat(conversation.otherUser.username);
     // Update message status only if conversation between the 2 users already exist
     if (conversation.messages?.length > 0) {
-      await dispatch(updateMessageStatus(reqBody));
+      await this.props.updateMessageStatus(reqBody);
     }
   };
 
-  return (
-    <Box onClick={() => handleClick(conversation)} className={classes.root}>
-      <BadgeAvatar
-        photoUrl={otherUser.photoUrl}
-        username={otherUser.username}
-        online={otherUser.online}
-        sidebar={true}
-      />
-      <ChatContent conversation={conversation} />
-    </Box>
-  );
+  render() {
+    const { classes } = this.props;
+    const otherUser = this.props.conversation.otherUser;
+    return (
+      <Box
+        onClick={() => this.handleClick(this.props.conversation)}
+        className={classes.root}
+      >
+        <BadgeAvatar
+          photoUrl={otherUser.photoUrl}
+          username={otherUser.username}
+          online={otherUser.online}
+          sidebar={true}
+        />
+        <ChatContent conversation={this.props.conversation} />
+      </Box>
+    );
+  }
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    setActiveChat: (id) => {
+      dispatch(setActiveChat(id));
+    },
+    updateMessageStatus: (conversation) => {
+      dispatch(updateMessageStatus(conversation));
+    },
+  };
 };
 
-export default Chat;
+export default connect(null, mapDispatchToProps)(withStyles(styles)(Chat));
