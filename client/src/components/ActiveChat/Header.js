@@ -3,7 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Box, Typography } from "@material-ui/core";
 import MoreHorizIcon from "@material-ui/icons/MoreHoriz";
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -45,9 +45,8 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const Header = (props) => {
+const Header = ({ username, online }) => {
   const classes = useStyles();
-  const { username, online } = props;
 
   return (
     <Box className={classes.root}>
